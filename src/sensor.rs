@@ -6,36 +6,31 @@ use crate::error::Error;
 use crate::fifo::Fifo;
 use crate::gyro::{Gyro, GyroFullScale};
 use crate::registers::Register;
-use drogue_embedded_timer::Delay;
+use embedded_hal::blocking::delay;
 use embedded_hal::blocking::i2c::{Write, WriteRead};
-use embedded_time::duration::Milliseconds;
 
 /// InvenSense MPU-6050 Driver
-pub struct Mpu6050<'clock, I2c, Clock>
+pub struct Mpu6050<I2c>
 where
     I2c: Write + WriteRead,
     <I2c as WriteRead>::Error: core::fmt::Debug,
     <I2c as Write>::Error: core::fmt::Debug,
-    Clock: embedded_time::Clock,
 {
     i2c: I2c,
     address: u8,
-    clock: &'clock Clock,
 }
 
-impl<'clock, I2c, Clock> Mpu6050<'clock, I2c, Clock>
+impl<I2c> Mpu6050<I2c>
 where
     I2c: Write + WriteRead,
     <I2c as WriteRead>::Error: core::fmt::Debug,
     <I2c as Write>::Error: core::fmt::Debug,
-    Clock: embedded_time::Clock,
 {
     /// Construct a new i2c driver for the MPU-6050
-    pub fn new(i2c: I2c, address: Address, clock: &'clock Clock) -> Result<Self, Error<I2c>> {
+    pub fn new(i2c: I2c, address: Address) -> Result<Self, Error<I2c>> {
         let mut sensor = Self {
             i2c,
             address: address.into(),
-            clock,
         };
 
         sensor.disable_sleep()?;
@@ -44,10 +39,13 @@ where
     }
 
     /// Load DMP firmware and perform all appropriate initialization.
-    pub fn initialize_dmp(&mut self) -> Result<(), Error<I2c>> {
-        self.reset()?;
+    pub fn initialize_dmp(
+        &mut self,
+        delay: &mut impl delay::DelayMs<u32>,
+    ) -> Result<(), Error<I2c>> {
+        self.reset(delay)?;
         self.disable_sleep()?;
-        self.reset_signal_path()?;
+        self.reset_signal_path(delay)?;
         self.disable_dmp()?;
         self.set_clock_source(ClockSource::Xgyro)?;
         self.disable_interrupts()?;
@@ -100,20 +98,23 @@ where
     // ------------------------------------------------------------------------
 
     /// Perform power reset of the MPU
-    pub fn reset(&mut self) -> Result<(), Error<I2c>> {
+    pub fn reset(&mut self, clock: &mut impl delay::DelayMs<u32>) -> Result<(), Error<I2c>> {
         let mut value = self.read_register(Register::PwrMgmt1)?;
         value |= 1 << 7;
         self.write_register(Register::PwrMgmt1, value)?;
-        Delay::new(self.clock).delay(Milliseconds(200));
+        clock.delay_ms(200);
         Ok(())
     }
 
     /// Perform reset of the signal path
-    pub fn reset_signal_path(&mut self) -> Result<(), Error<I2c>> {
+    pub fn reset_signal_path(
+        &mut self,
+        clock: &mut impl delay::DelayMs<u32>,
+    ) -> Result<(), Error<I2c>> {
         let mut value = self.read_register(Register::UserCtrl)?;
         value |= 1 << 0;
         self.write_register(Register::UserCtrl, value)?;
-        Delay::new(self.clock).delay(Milliseconds(200));
+        clock.delay_ms(200);
         Ok(())
     }
 

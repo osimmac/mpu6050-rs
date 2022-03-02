@@ -11,6 +11,8 @@ Reasons/differences:
 * Slight difference in conversion of Quaternion to YPR (no `pitch -= PI`)
 * Various fixes for e.g. clippy lints (also PR'd upstream)
 
+## [Demo Project](https://github.com/barafael/mpu6050-dmp-demo)
+
 ## On-Chip DMP 'Digital Motion Processor'
 
 This driver can load the appropriate firmware for quaternion-based on-chip DMP processing.

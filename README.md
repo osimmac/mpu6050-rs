@@ -11,7 +11,8 @@ Reasons/differences:
 * Slight difference in conversion of Quaternion to YPR (no `pitch -= PI`)
 * Various fixes for e.g. clippy lints (also PR'd upstream)
 
-## [Demo Project](https://github.com/barafael/mpu6050-dmp-demo)
+## [Demo Project for STM32F1](https://github.com/barafael/mpu6050-dmp-demo-f1)
+## [Demo Project for STM32F4](https://github.com/barafael/mpu6050-dmp-demo-f4)
 
 ## On-Chip DMP 'Digital Motion Processor'
 

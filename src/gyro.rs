@@ -30,12 +30,6 @@ impl Gyro {
     }
 }
 
-struct GyroBiases {
-    x: i16,
-    y: i16,
-    z: i16,
-}
-
 #[derive(Copy, Clone, Debug)]
 pub enum GyroFullScale {
     Deg250 = 0,

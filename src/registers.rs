@@ -5,6 +5,20 @@ pub enum Register {
     PwrMgmt1 = 0x6B,
     SmpRtDiv = 0x19,
 
+    AccelOffsetX_H = 0x06,
+    AccelOffsetX_L = 0x07,
+    AccelOffsetY_H = 0x08,
+    AccelOffsetY_L = 0x09,
+    AccelOffsetZ_H = 0x0A,
+    AccelOffsetZ_L = 0x0B,
+
+    GyroOffsetX_H = 0x13,
+    GyroOffsetX_L = 0x14,
+    GyroOffsetY_H = 0x15,
+    GyroOffsetY_L = 0x16,
+    GyroOffsetZ_H = 0x17,
+    GyroOffsetZ_L = 0x18,
+
     AccelX_H = 0x3B,
     AccelX_L = 0x3C,
     AccelY_H = 0x3D,

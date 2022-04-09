@@ -130,7 +130,79 @@ where
         self.write_register(Register::IntEnable, 0x00)
     }
 
-    pub fn calibrate_accel(&mut self, loops: u8) -> Result<(), Error<I2c>> {
+    /// Super simple averaging calibration of the accelerometers.
+    /// Probably should be called before initializing the DMP.
+    // TODO that's obviously not optimal situation, fix this with typestates or something.
+    // TODO: consider this: https://wired.chillibasket.com/2015/01/calibrating-mpu6050/
+    pub fn calibrate_accel(
+        &mut self,
+        loops: u8,
+        delay: &mut impl delay::DelayMs<u32>,
+    ) -> Result<(), Error<I2c>> {
+        delay.delay_ms(10);
+        let mut accumulator = [0u64; 3];
+        for _ in 0..loops {
+            let sample = self.accel().unwrap();
+            accumulator[0] += sample.x() as u64;
+            accumulator[1] += sample.y() as u64;
+            accumulator[2] += sample.z() as u64;
+            delay.delay_ms(1);
+        }
+
+        accumulator[0] /= loops as u64;
+        accumulator[1] /= loops as u64;
+        accumulator[2] /= loops as u64;
+
+        let h = ((accumulator[0] as i16) << 8) as u8;
+        let l = (accumulator[0] as i16 & 0x00FF) as u8;
+        self.write(&[Register::AccelOffsetX_H as u8, h, l])?;
+
+        let h = ((accumulator[1] as i16) << 8) as u8;
+        let l = (accumulator[1] as i16 & 0x00FF) as u8;
+        self.write(&[Register::AccelOffsetY_H as u8, h, l])?;
+
+        let h = ((accumulator[2] as i16) << 8) as u8;
+        let l = (accumulator[2] as i16 & 0x00FF) as u8;
+        self.write(&[Register::AccelOffsetZ_H as u8, h, l])?;
+
+        Ok(())
+    }
+
+    /// Super simple averaging calibration of the gyroscopes.
+    /// Probably should be called before initializing the DMP.
+    // TODO that's obviously not optimal situation, fix this with typestates or something.
+    // TODO: consider this: https://wired.chillibasket.com/2015/01/calibrating-mpu6050/
+    pub fn calibrate_gyro(
+        &mut self,
+        loops: u8,
+        delay: &mut impl delay::DelayMs<u32>,
+    ) -> Result<(), Error<I2c>> {
+        delay.delay_ms(10);
+        let mut accumulator = [0u64; 3];
+        for _ in 0..loops {
+            let gyros = self.gyro().unwrap();
+            accumulator[0] += gyros.x() as u64;
+            accumulator[1] += gyros.y() as u64;
+            accumulator[2] += gyros.z() as u64;
+            delay.delay_ms(1);
+        }
+
+        accumulator[0] /= loops as u64;
+        accumulator[1] /= loops as u64;
+        accumulator[2] /= loops as u64;
+
+        let h = ((accumulator[0] as i16) << 8) as u8;
+        let l = (accumulator[0] as i16 & 0x00FF) as u8;
+        self.write(&[Register::GyroOffsetX_H as u8, h, l])?;
+
+        let h = ((accumulator[1] as i16) << 8) as u8;
+        let l = (accumulator[1] as i16 & 0x00FF) as u8;
+        self.write(&[Register::GyroOffsetY_H as u8, h, l])?;
+
+        let h = ((accumulator[2] as i16) << 8) as u8;
+        let l = (accumulator[2] as i16 & 0x00FF) as u8;
+        self.write(&[Register::GyroOffsetZ_H as u8, h, l])?;
+
         Ok(())
     }
 

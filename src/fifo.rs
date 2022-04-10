@@ -28,7 +28,7 @@ impl Fifo {
         }
     }
 
-    pub(crate) fn to_byte(&self) -> u8 {
+    pub(crate) fn to_byte(self) -> u8 {
         let mut byte = 0;
         if self.temp {
             byte |= 1 << 7;

@@ -140,29 +140,25 @@ where
         delay: &mut impl delay::DelayMs<u32>,
     ) -> Result<(), Error<I2c>> {
         delay.delay_ms(10);
-        let mut accumulator = [0u64; 3];
+        let mut accumulator = [0i16; 3];
         for _ in 0..loops {
             let sample = self.accel().unwrap();
-            accumulator[0] += sample.x() as u64;
-            accumulator[1] += sample.y() as u64;
-            accumulator[2] += sample.z() as u64;
+            accumulator[0] += ((sample.x() as f32) / loops as f32) as i16;
+            accumulator[1] += ((sample.y() as f32) / loops as f32) as i16;
+            accumulator[2] += ((sample.z() as f32) / loops as f32) as i16;
             delay.delay_ms(1);
         }
 
-        accumulator[0] /= loops as u64;
-        accumulator[1] /= loops as u64;
-        accumulator[2] /= loops as u64;
-
-        let h = ((accumulator[0] as i16) << 8) as u8;
-        let l = (accumulator[0] as i16 & 0x00FF) as u8;
+        let h = ((accumulator[0]) << 8) as u8;
+        let l = (accumulator[0] & 0x00FF) as u8;
         self.write(&[Register::AccelOffsetX_H as u8, h, l])?;
 
-        let h = ((accumulator[1] as i16) << 8) as u8;
-        let l = (accumulator[1] as i16 & 0x00FF) as u8;
+        let h = ((accumulator[1]) << 8) as u8;
+        let l = (accumulator[1] & 0x00FF) as u8;
         self.write(&[Register::AccelOffsetY_H as u8, h, l])?;
 
-        let h = ((accumulator[2] as i16) << 8) as u8;
-        let l = (accumulator[2] as i16 & 0x00FF) as u8;
+        let h = ((accumulator[2]) << 8) as u8;
+        let l = (accumulator[2] & 0x00FF) as u8;
         self.write(&[Register::AccelOffsetZ_H as u8, h, l])?;
 
         Ok(())
@@ -178,29 +174,25 @@ where
         delay: &mut impl delay::DelayMs<u32>,
     ) -> Result<(), Error<I2c>> {
         delay.delay_ms(10);
-        let mut accumulator = [0u64; 3];
+        let mut accumulator = [0i16; 3];
         for _ in 0..loops {
             let gyros = self.gyro().unwrap();
-            accumulator[0] += gyros.x() as u64;
-            accumulator[1] += gyros.y() as u64;
-            accumulator[2] += gyros.z() as u64;
+            accumulator[0] += (gyros.x() as f32 / loops as f32) as i16;
+            accumulator[1] += (gyros.y() as f32 / loops as f32) as i16;
+            accumulator[2] += (gyros.z() as f32 / loops as f32) as i16;
             delay.delay_ms(1);
         }
 
-        accumulator[0] /= loops as u64;
-        accumulator[1] /= loops as u64;
-        accumulator[2] /= loops as u64;
-
-        let h = ((accumulator[0] as i16) << 8) as u8;
-        let l = (accumulator[0] as i16 & 0x00FF) as u8;
+        let h = ((accumulator[0]) << 8) as u8;
+        let l = (accumulator[0] & 0x00FF) as u8;
         self.write(&[Register::GyroOffsetX_H as u8, h, l])?;
 
-        let h = ((accumulator[1] as i16) << 8) as u8;
-        let l = (accumulator[1] as i16 & 0x00FF) as u8;
+        let h = ((accumulator[1]) << 8) as u8;
+        let l = (accumulator[1] & 0x00FF) as u8;
         self.write(&[Register::GyroOffsetY_H as u8, h, l])?;
 
-        let h = ((accumulator[2] as i16) << 8) as u8;
-        let l = (accumulator[2] as i16 & 0x00FF) as u8;
+        let h = ((accumulator[2]) << 8) as u8;
+        let l = (accumulator[2] & 0x00FF) as u8;
         self.write(&[Register::GyroOffsetZ_H as u8, h, l])?;
 
         Ok(())

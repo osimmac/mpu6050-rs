@@ -19,14 +19,20 @@ impl From<Quaternion> for YawPitchRoll {
             (2.0 * q.w * q.w + 2.0 * q.x * q.x - 1.0) as f64,
         );
         // pitch: (nose up/down, about Y axis)
-        let pitch = libm::atan2(
+        let mut pitch = libm::atan2(
             gravity.x as f64,
             libm::sqrt((gravity.y * gravity.y + gravity.z * gravity.z) as f64),
         );
         // roll: (tilt left/right, about X axis)
         let roll = libm::atan2(gravity.y as f64, gravity.z as f64);
 
-        //pitch = PI - pitch;
+        if gravity.z < 0.0 {
+            if pitch > 0.0 {
+                pitch = core::f64::consts::PI - pitch;
+            } else {
+                pitch = -core::f64::consts::PI - pitch;
+            }
+        }
 
         Self {
             yaw: yaw as f32,
@@ -35,3 +41,20 @@ impl From<Quaternion> for YawPitchRoll {
         }
     }
 }
+
+// uint8_t MPU6050_6Axis_MotionApps20::dmpGetYawPitchRoll(float *data, Quaternion *q, VectorFloat *gravity) {
+//     // yaw: (about Z axis)
+//     data[0] = atan2(2*q.x*q.y - 2*q.w*q.z, 2*q.w*q.w + 2*q.x*q.x - 1);
+//     // pitch: (nose up/down, about Y axis)
+//     data[1] = atan2(gravity.x , sqrt(gravity.y*gravity.y + gravity.z*gravity.z));
+//     // roll: (tilt left/right, about X axis)
+//     data[2] = atan2(gravity.y , gravity.z);
+//     if (gravity.z < 0) {
+//         if(data[1] > 0) {
+//             data[1] = PI - data[1];
+//         } else {
+//             data[1] = -PI - data[1];
+//         }
+//     }
+//     return 0;
+// }

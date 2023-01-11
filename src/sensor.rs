@@ -282,11 +282,12 @@ where
     }
 
     pub fn get_fifo_count(&mut self) -> Result<usize, Error<I2c>> {
+        let mut buf2 = [0; 2];
         let mut buf = [0; 2];
         let _value = self.read_registers(Register::FifoCount_H, &mut buf)?;
         //reading just h UPDATES these registers. must also read l.
-        let _value2 = self.read_registers(Register::FifoCount_L, &mut buf)?;
-        Ok(u16::from_be_bytes(buf) as usize)
+        let _value2 = self.read_registers(Register::FifoCount_L, &mut buf2)?;
+        Ok(u16::from_be_bytes(buf2) as usize)
     }
 
     pub fn disable_sleep(&mut self) -> Result<(), Error<I2c>> {

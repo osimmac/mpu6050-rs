@@ -15,16 +15,16 @@ impl From<Quaternion> for YawPitchRoll {
         let gravity = Gravity::from(q);
         // yaw: (about Z axis)
         let yaw = libm::atan2(
-            (2.0 * q.x * q.y - 2.0 * q.w * q.z) as f64,
             (2.0 * q.w * q.w + 2.0 * q.x * q.x - 1.0) as f64,
+            (2.0 * q.x * q.y - 2.0 * q.w * q.z) as f64,
         );
         // pitch: (nose up/down, about Y axis)
         let mut pitch = libm::atan2(
-            gravity.x as f64,
             libm::sqrt((gravity.y * gravity.y + gravity.z * gravity.z) as f64),
+            gravity.x as f64,
         );
         // roll: (tilt left/right, about X axis)
-        let roll = libm::atan2(gravity.y as f64, gravity.z as f64);
+        let roll = libm::atan2(gravity.z as f64, gravity.y as f64);
 
         if gravity.z < 0.0 {
             if pitch > 0.0 {

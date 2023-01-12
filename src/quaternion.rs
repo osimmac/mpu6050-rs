@@ -12,21 +12,21 @@ impl Quaternion {
             return None;
         }
 
-        let w = i32::from_be_bytes([bytes[0], bytes[1], bytes[2], bytes[3]]);
+        let w = f32::from_be_bytes([bytes[0], bytes[1], bytes[2], bytes[3]]);
 
-        let x = i32::from_be_bytes([bytes[4], bytes[5], bytes[6], bytes[7]]);
+        let x = f32::from_be_bytes([bytes[4], bytes[5], bytes[6], bytes[7]]);
 
-        let y = i32::from_be_bytes([bytes[8], bytes[9], bytes[10], bytes[11]]);
+        let y = f32::from_be_bytes([bytes[8], bytes[9], bytes[10], bytes[11]]);
 
-        let z = i32::from_be_bytes([bytes[12], bytes[13], bytes[14], bytes[15]]); // as f32 / 16384.0;
+        let z = f32::from_be_bytes([bytes[12], bytes[13], bytes[14], bytes[15]]); // as f32 / 16384.0;
 
         //log::info!("---> {} {} {} {}", w, x, y, z);
 
         Some(Self {
-            w: w as f32 / 16384.0,
-            x: x as f32 / 16384.0,
-            y: y as f32 / 16384.0,
-            z: z as f32 / 16384.0,
+            w: w / 16384.0,
+            x: x / 16384.0,
+            y: y / 16384.0,
+            z: z / 16384.0,
         })
     }
 
